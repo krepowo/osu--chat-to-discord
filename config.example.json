@@ -1,0 +1,24 @@
+{
+    "auth_osu!": {
+        "username": "",
+        "password": "",
+        "apikey": ""
+    },
+    "discord_auth": {
+        "token": ""
+    },
+    "discord_user": {
+        "owner": ""
+    },
+    "discord_channel": {
+        "osu_global": "",
+        "osu_indo": "",
+        "osu_lobby": "",
+        "pm": ""
+    },
+    "osu!_channel": [
+        "#osu",
+        "#indonesian",
+        "#lobby"
+    ]
+}
