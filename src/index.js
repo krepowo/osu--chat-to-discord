@@ -24,17 +24,19 @@ bancho.on("PM", async (msg) => {
             let text = msg.content.replace('ACTION', '').trim()
             embed.setDescription(text)
             return
-            let urlRegex = /^(https?:\/\/[^/]+(\/[\w-]+)+)/
-            let beatmap = msg.content.match(urlRegex)[0].split('beatmapsets/')[1]
-            console.log(beatmap)
-            osuapi.getBeatmaps({ b: beatmap }).then(map => {
-                let aw = map[0]
-                let creatorid;
-                osuapi.getUser({ u: aw.createMessage }).then(u => creatorid = u.id)
-                embed2.setAuthor(`Mapped by ${aw.creator}`, `https://a.ppy.sh/${creatorid}`, `https://osu.ppy.sh/users/${creatorid}`).setTitle(`${aw.artist} - ${aw.title}`)
-                    .addField('BPM', aw.bpm).addField('Star rating', aw.rating + "⭐").addField('Status', aw.approvalStatus)
-                    .setTimestamp('now').setColor(convertColor('#2ec36e'))
-            })
+            if (msg.content.includes("https://osu.ppy.sh/beatmapsets/")) {
+                let urlRegex = /^(https?:\/\/[^/]+(\/[\w-]+)+)/
+                let beatmap = msg.content.match(urlRegex)[0].split('beatmapsets/')[1]
+                console.log(beatmap)
+                osuapi.getBeatmaps({ b: beatmap }).then(map => {
+                    let aw = map[0]
+                    let creatorid;
+                    osuapi.getUser({ u: aw.createMessage }).then(u => creatorid = u.id)
+                    embed2.setAuthor(`Mapped by ${aw.creator}`, `https://a.ppy.sh/${creatorid}`, `https://osu.ppy.sh/users/${creatorid}`).setTitle(`${aw.artist} - ${aw.title}`)
+                        .addField('BPM', aw.bpm).addField('Star rating', aw.rating + "⭐").addField('Status', aw.approvalStatus)
+                        .setTimestamp('now').setColor(convertColor('#2ec36e'))
+                })
+            }
         } else {
             embed.setDescription(msg.content)
         }
@@ -44,8 +46,13 @@ bancho.on("PM", async (msg) => {
             embed.setImage(ssurl)
         }
 
-        let ch = discord.getChannel(config.discord_channel.osu_global)
-        ch.createMessage({ embeds: [embed.toJSON(), embed2.toJSON()] })
+        if (!embed2.toJSON().author) {
+            discord.getChannel(config.discord_channel.pm)
+                .createMessage({ embeds: [embed.toJSON()] })
+        } else {
+            discord.getChannel(config.discord_channel.pm)
+                .createMessage({ embeds: [embed.toJSON(), embed2.toJSON()] })
+        }
     })
 })
 
@@ -63,18 +70,20 @@ bancho.on('CM', async (msg) => {
             if (msg.content.includes('ACTION')) {
                 let text = msg.content.replace('ACTION', '').trim()
                 embed.setDescription(text)
-                return
-                let urlRegex = /^(https?:\/\/[^/]+(\/[\w-]+)+)/
-                let beatmap = msg.content.match(urlRegex)[0].split('beatmapsets/')[1]
-                console.log(beatmap)
-                osuapi.getBeatmaps({ b: beatmap }).then(map => {
-                    let aw = map[0]
-                    let creatorid;
-                    osuapi.getUser({ u: aw.createMessage }).then(u => creatorid = u.id)
-                    embed2.setAuthor(`Mapped by ${aw.creator}`, `https://a.ppy.sh/${creatorid}`, `https://osu.ppy.sh/users/${creatorid}`).setTitle(`${aw.artist} - ${aw.title}`)
-                        .addField('BPM', aw.bpm).addField('Star rating', aw.rating + "⭐").addField('Status', aw.approvalStatus)
-                        .setTimestamp('now').setColor(convertColor('#2ec36e'))
-                })
+                if (msg.content.includes("https://osu.ppy.sh/beatmapsets/")) {
+                    let urlRegex = /^(https?:\/\/[^/]+(\/[\w-]+)+)/
+                    let beatmap = msg.content.match(urlRegex)
+                    console.log(beatmap)
+                    return
+                    osuapi.getBeatmaps({ b: beatmap[0].split('beatmapsets/')[1] }).then(map => {
+                        let aw = map[0]
+                        let creatorid;
+                        osuapi.getUser({ u: aw.createMessage }).then(u => creatorid = u.id)
+                        embed2.setAuthor(`Mapped by ${aw.creator}`, `https://a.ppy.sh/${creatorid}`, `https://osu.ppy.sh/users/${creatorid}`).setTitle(`${aw.artist} - ${aw.title}`)
+                            .addField('BPM', aw.bpm).addField('Star rating', aw.rating + "⭐").addField('Status', aw.approvalStatus)
+                            .setTimestamp('now').setColor(convertColor('#2ec36e'))
+                    })
+                }
             } else {
                 embed.setDescription(msg.content)
             }
@@ -85,11 +94,11 @@ bancho.on('CM', async (msg) => {
             }
 
             if (!embed2.toJSON().author) {
-                let ch = discord.getChannel(config.discord_channel.osu_global)
-                ch.createMessage({ embeds: [embed.toJSON()] })
+                discord.getChannel(config.discord_channel.osu_global)
+                    .createMessage({ embeds: [embed.toJSON()] })
             } else {
-                let ch = discord.getChannel(config.discord_channel.osu_global)
-                ch.createMessage({ embeds: [embed.toJSON(), embed2.toJSON()] })
+                discord.getChannel(config.discord_channel.osu_global)
+                    .createMessage({ embeds: [embed.toJSON(), embed2.toJSON()] })
             }
         })
     }
@@ -108,17 +117,19 @@ bancho.on('CM', async (msg) => {
                 let text = msg.content.replace('ACTION', '').trim()
                 embed.setDescription(text)
                 return
-                let urlRegex = /^(https?:\/\/[^/]+(\/[\w-]+)+)/
-                let beatmap = msg.content.match(urlRegex)[0].split('beatmapsets/')[1]
-                console.log(beatmap)
-                osuapi.getBeatmaps({ b: beatmap }).then(map => {
-                    let aw = map[0]
-                    let creatorid;
-                    osuapi.getUser({ u: aw.createMessage }).then(u => creatorid = u.id)
-                    embed2.setAuthor(`Mapped by ${aw.creator}`, `https://a.ppy.sh/${creatorid}`, `https://osu.ppy.sh/users/${creatorid}`).setTitle(`${aw.artist} - ${aw.title}`)
-                        .addField('BPM', aw.bpm).addField('Star rating', aw.rating + "⭐").addField('Status', aw.approvalStatus)
-                        .setTimestamp('now').setColor(convertColor('#2ec36e'))
-                })
+                if (msg.content.includes("https://osu.ppy.sh/beatmapsets/")) {
+                    let urlRegex = /^(https?:\/\/[^/]+(\/[\w-]+)+)/
+                    let beatmap = msg.content.match(urlRegex)[0].split('beatmapsets/')[1]
+                    console.log(beatmap)
+                    osuapi.getBeatmaps({ b: beatmap }).then(map => {
+                        let aw = map[0]
+                        let creatorid;
+                        osuapi.getUser({ u: aw.createMessage }).then(u => creatorid = u.id)
+                        embed2.setAuthor(`Mapped by ${aw.creator}`, `https://a.ppy.sh/${creatorid}`, `https://osu.ppy.sh/users/${creatorid}`).setTitle(`${aw.artist} - ${aw.title}`)
+                            .addField('BPM', aw.bpm).addField('Star rating', aw.rating + "⭐").addField('Status', aw.approvalStatus)
+                            .setTimestamp('now').setColor(convertColor('#2ec36e'))
+                    })
+                }
             } else {
                 embed.setDescription(msg.content)
             }
@@ -129,11 +140,11 @@ bancho.on('CM', async (msg) => {
             }
 
             if (!embed2.toJSON().author) {
-                let ch = discord.getChannel(config.discord_channel.osu_indo)
-                ch.createMessage({ embeds: [embed.toJSON()] })
+                discord.getChannel(config.discord_channel.osu_indo)
+                    .createMessage({ embeds: [embed.toJSON()] })
             } else {
-                let ch = discord.getChannel(config.discord_channel.osu_indo)
-                ch.createMessage({ embeds: [embed.toJSON(), embed2.toJSON()] })
+                discord.getChannel(config.discord_channel.osu_indo)
+                    .createMessage({ embeds: [embed.toJSON(), embed2.toJSON()] })
             }
         })
 
@@ -150,19 +161,20 @@ bancho.on('CM', async (msg) => {
                 if (msg.content.includes('ACTION')) {
                     let text = msg.content.replace('ACTION', '').trim()
                     embed.setDescription(text)
-
                     return
-                    let urlRegex = /^(https?:\/\/[^/]+(\/[\w-]+)+)/
-                    let beatmap = msg.content.match(urlRegex)[0].split('beatmapsets/')[1]
-                    console.log(beatmap)
-                    osuapi.getBeatmaps({ b: beatmap }).then(map => {
-                        let aw = map[0]
-                        let creatorid;
-                        osuapi.getUser({ u: aw.createMessage }).then(u => creatorid = u.id)
-                        embed2.setAuthor(`Mapped by ${aw.creator}`, `https://a.ppy.sh/${creatorid}`, `https://osu.ppy.sh/users/${creatorid}`).setTitle(`${aw.artist} - ${aw.title}`)
-                            .addField('BPM', aw.bpm).addField('Star rating', aw.rating + "⭐").addField('Status', aw.approvalStatus)
-                            .setTimestamp('now').setColor(convertColor('#2ec36e'))
-                    })
+                    if (msg.content.includes("https://osu.ppy.sh/beatmapsets/")) {
+                        let urlRegex = /^(https?:\/\/[^/]+(\/[\w-]+)+)/
+                        let beatmap = msg.content.match(urlRegex)[0].split('beatmapsets/')[1]
+                        console.log(beatmap)
+                        osuapi.getBeatmaps({ b: beatmap }).then(map => {
+                            let aw = map[0]
+                            let creatorid;
+                            osuapi.getUser({ u: aw.createMessage }).then(u => creatorid = u.id)
+                            embed2.setAuthor(`Mapped by ${aw.creator}`, `https://a.ppy.sh/${creatorid}`, `https://osu.ppy.sh/users/${creatorid}`).setTitle(`${aw.artist} - ${aw.title}`)
+                                .addField('BPM', aw.bpm).addField('Star rating', aw.rating + "⭐").addField('Status', aw.approvalStatus)
+                                .setTimestamp('now').setColor(convertColor('#2ec36e'))
+                        })
+                    }
                 } else {
                     embed.setDescription(msg.content)
                 }
@@ -173,11 +185,9 @@ bancho.on('CM', async (msg) => {
                 }
 
                 if (!embed2.toJSON().author) {
-                    let ch = discord.getChannel(config.discord_channel.osu_lobby)
-                    ch.createMessage({ embeds: [embed.toJSON()] })
+                    discord.getChannel(config.discord_channel.osu_lobby).createMessage({ embeds: [embed.toJSON()] })
                 } else {
-                    let ch = discord.getChannel(config.discord_channel.osu_lobby)
-                    ch.createMessage({ embeds: [embed.toJSON(), embed2.toJSON()] })
+                    discord.getChannel(config.discord_channel.osu_lobby).createMessage({ embeds: [embed.toJSON(), embed2.toJSON()] })
                 }
 
             })
@@ -209,10 +219,6 @@ bancho.connect().then(() => {
 })
 discord.connect()
 
-process.on('unhandledRejection', (error, promise) => {
-    console.error(`Unhandled rejection: ${promise}, \n ${error}`)
-})
-
 function convertColor(color) {
     let hasil
     const HEX_REGEX = /^#?([a-fA-F0-9]{6})$/;
@@ -220,4 +226,9 @@ function convertColor(color) {
     if (!match) throw new Error('Invalid color');
     hasil = parseInt(match[1], 16);
     return hasil
-} 
+}
+
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.log('Unhandled Rejection at: Promise', promise, 'reason:', reason);
+});
